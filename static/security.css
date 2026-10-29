@@ -1,0 +1,161 @@
+/* ==========================================================================
+   SUMANOS ENTERPRISE CSS SECURITY SHIELD v4.0 (static/security.css)
+   Pre-render asset protection, anti-capture lock screen, and print blocker
+   ========================================================================== */
+
+/* --- 1. GLOBAL SELECTION & MOBILE CALLOUT LOCKDOWN --- */
+*,
+*::before,
+*::after,
+body,
+img,
+svg,
+canvas,
+a {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none; /* Disables iOS/Android long-press Save/Copy menu */
+}
+
+/* Whitelist interactive inputs, search bars, forms, and SumanOS Terminal */
+input,
+textarea,
+select,
+[contenteditable="true"],
+#cmdInput,
+#termInput,
+#projectSearchInput,
+#logSearchInput {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+    pointer-events: auto !important;
+}
+
+/* Spoof selection highlight if a browser extension forces selection */
+body *:not(input):not(textarea)::selection {
+    background: transparent !important;
+    color: inherit !important;
+}
+body *:not(input):not(textarea)::-moz-selection {
+    background: transparent !important;
+    color: inherit !important;
+}
+
+/* --- 2. IMAGE, CANVAS & MEDIA EXTRACTION LOCKDOWN --- */
+img,
+svg,
+video,
+canvas,
+.profile-img,
+.about-profile-img,
+#protected-photo {
+    pointer-events: none !important;
+    -webkit-user-drag: none !important;
+    -khtml-user-drag: none !important;
+    -moz-user-drag: none !important;
+    -o-user-drag: none !important;
+    user-drag: none !important;
+    -webkit-touch-callout: none !important;
+    transition: filter 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
+}
+
+/* Invisible Glass Armor Shield over Protected Containers & Profile Images */
+.protect,
+.hero-image,
+#heroImageContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.protect::after,
+.hero-image::after,
+#heroImageContainer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    z-index: 25;
+    pointer-events: auto;
+    cursor: default;
+}
+
+/* --- 3. DYNAMIC WATERMARK & ANTI-CAPTURE LOCK OVERLAY --- */
+/* Subtle forensic signature watermark during normal viewing */
+
+
+/* Active Privacy Blur State (Triggered by Tab Switch, Window Blur, or PrintScreen) */
+body.suman-privacy-blur > *:not(#suman-sec-toast) {
+    filter: blur(18px) brightness(0.45) saturate(0.6) !important;
+    pointer-events: none !important;
+    transition: filter 0.2s ease !important;
+}
+
+/* Full-Screen Security Lock Banner when Privacy Blur is Active */
+body.suman-privacy-blur::after {
+    content: "🛡️ SUMANOS SECURITY SHIELD ACTIVE — SCREEN CAPTURE & INSPECTION RESTRICTED";
+    inset: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    font-size: clamp(0.95rem, 2.2vw, 1.35rem);
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #f8fafc;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.55) 0%, rgba(2, 6, 23, 0.88) 100%);
+    text-shadow: 0 4px 20px rgba(37, 99, 235, 0.6);
+    transform: none;
+    z-index: 2147483646;
+}
+
+/* --- 4. ENTERPRISE PRINT & PDF EXPORT LOCKDOWN --- */
+@media print {
+    html,
+    body {
+        background: #020617 !important;
+        color: #f8fafc !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Hide all portfolio sections & images from print / Save-as-PDF */
+    body > * {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
+    /* Display formal security notice on printed / exported PDF page */
+    body::before {
+        content: "🔒 SECURITY LOCKDOWN: UNAUTHORIZED PRINTING OR PDF EXPORT OF SUMAN M'S PORTFOLIO IS STRICTLY PROHIBITED.";
+        display: flex !important;
+        visibility: visible !important;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        height: 100vh;
+        padding: 40px;
+        font-family: sans-serif;
+        font-size: 22pt;
+        font-weight: bold;
+        color: #ef4444 !important;
+    }
+
+    body::after {
+        display: none !important;
+    }
+}

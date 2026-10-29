@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>404 • Cloud Node Not Found | Suman M</title>
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-light: #60a5fa;
+        --secondary-color: #0f172a;
+        --text-dark: #1e293b;
+        --text-muted: #94a3b8;
+        --bg-gradient: radial-gradient(circle at 12% 18%, rgba(37, 99, 235, 0.15), transparent 35%),
+                       radial-gradient(circle at 88% 75%, rgba(139, 92, 246, 0.13), transparent 35%),
+                       linear-gradient(135deg, #090d16 0%, #020617 100%);
+        --glass-bg: rgba(15, 23, 42, 0.78);
+        --glass-border: rgba(255, 255, 255, 0.09);
+        --glass-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+        background: var(--bg-gradient);
+        color: #f8fafc;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        padding: 20px;
+    }
+
+    /* Ambient background glowing orbs */
+    .ambient-orb {
+        position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; opacity: 0.35;
+        animation: float-orb 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 380px; height: 380px; background: #2563eb; top: -100px; left: -100px; }
+    .orb-2 { width: 340px; height: 340px; background: #8b5cf6; bottom: -80px; right: -80px; animation-delay: 3s; }
+    @keyframes float-orb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, 30px) scale(1.1); } }
+
+    .error-card {
+        background: var(--glass-bg); backdrop-filter: blur(25px) saturate(180%); -webkit-backdrop-filter: blur(25px) saturate(180%);
+        border: 1px solid var(--glass-border); border-radius: 30px; padding: 50px 40px;
+        width: 100%; max-width: 540px; text-align: center; box-shadow: var(--glass-shadow);
+        position: relative; z-index: 10; opacity: 0; transform: translateY(30px);
+    }
+
+    .error-code {
+        font-size: clamp(5rem, 15vw, 7.5rem); font-weight: 900; line-height: 1; letter-spacing: -3px;
+        background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 50%, #c084fc 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px;
+        font-family: 'Fira Code', monospace;
+    }
+
+    .error-card h2 { font-size: 1.6rem; font-weight: 800; color: #ffffff; margin-bottom: 12px; }
+    .error-card p { color: var(--text-muted); font-size: 0.94rem; line-height: 1.65; margin-bottom: 30px; }
+
+    .terminal-snippet {
+        background: #060913; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;
+        padding: 14px 18px; font-family: 'Fira Code', monospace; font-size: 0.8rem; color: #34d399;
+        text-align: left; margin-bottom: 30px; overflow-x: auto;
+    }
+
+    .btn-group-error { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-blue), var(--primary-light)); color: white;
+        padding: 12px 26px; border-radius: 30px; font-weight: 600; text-decoration: none;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35); border: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(37, 99, 235, 0.5); }
+    .btn-outline {
+        background: rgba(255, 255, 255, 0.05); color: #f8fafc; border: 1.5px solid var(--glass-border);
+        padding: 11px 24px; border-radius: 30px; font-weight: 600; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
+    }
+    .btn-outline:hover { border-color: var(--primary-light); color: var(--primary-light); }
+</style>
+</head>
+<body>
+
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+
+    <div class="error-card" id="errorCard">
+        <div class="error-code">404</div>
+        <h2>Cloud Node Not Found</h2>
+        <p>The requested route or resource could not be located on the SumanOS server. It may have been moved or deleted.</p>
+
+        <div class="terminal-snippet">
+            <span style="color:#60a5fa;">suman@os:~$</span> route --lookup<br>
+            <span style="color:#ef4444;">[404 Error]: Target endpoint returned null.</span>
+        </div>
+
+        <div class="btn-group-error">
+            <a href="{{ url_for('home') }}" class="btn-primary">
+                <i class='bx bx-home-alt'></i> Back to Home
+            </a>
+            <a href="mailto:sumans48750@gmail.com" class="btn-outline">
+                <i class='bx bx-envelope'></i> Report Issue
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.to("#errorCard", {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power3.out"
+            });
+        });
+    </script>
+</body>
+</html>

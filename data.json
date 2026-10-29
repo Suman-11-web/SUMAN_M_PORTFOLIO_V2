@@ -1,0 +1,41 @@
+{
+    "about_text": "1. I have a strong interest in full-stack programming and cloud architecture.\n2. I enjoy building applications with Python, Flask, HTML, CSS, JavaScript, C++, and R.\n3. Experienced in deploying scalable projects across AWS (EC2 & S3), PythonAnywhere, Vercel, and Netlify.",
+    "insta_link": "https://instagram.com/__suman._.007",
+    "focus_1_title": "Full-Stack Web Development",
+    "focus_1_desc": "Scalable Python Flask & interactive 3D web apps",
+    "focus_1_link": "#projects",
+    "focus_2_title": "Cloud & UI Engineering",
+    "focus_2_desc": "AWS (EC2 & S3), modern glassmorphism & motion UI",
+    "focus_2_link": "#skills",
+    "projects": [
+        {
+            "name": "Novasocial",
+            "desc": "A full-fledged social media application designed to connect users.",
+            "link": "#"
+        },
+        {
+            "name": "NovaWave",
+            "desc": "A real-time chat application built to facilitate instant communication.",
+            "link": "#"
+        },
+        {
+            "name": "KSEAB Portal",
+            "desc": "A reliable web portal designed to securely display exam results.",
+            "link": "#"
+        }
+    ],
+    "visitors": [
+        {
+            "time": "2026-10-29 05:12 PM",
+            "timestamp": 1793274163.925217,
+            "ip": "127.0.0.1",
+            "os": "macOS 27",
+            "browser": "Chrome 156",
+            "device": "Apple Mac (Apple M4)",
+            "type": "Desktop",
+            "hits": 1
+        }
+    ],
+    "inquiries": [],
+    "total_views": 1
+}
