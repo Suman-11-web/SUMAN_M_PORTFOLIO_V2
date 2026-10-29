@@ -50,7 +50,6 @@
             transition: background 0.35s ease, color 0.35s ease;
         }
 
-        /* --- AMBIENT ANIMATED ORBS --- */
         .ambient-orb {
             position: fixed; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: 0; opacity: 0.35;
             animation: float-orb 12s ease-in-out infinite alternate;
@@ -130,7 +129,7 @@
 
         /* --- MAIN DASHBOARD CONTAINER --- */
         .admin-container {
-            max-width: 1320px; width: 92%; margin: 32px auto 60px; position: relative; z-index: 2;
+            max-width: 1400px; width: 94%; margin: 32px auto 60px; position: relative; z-index: 2;
         }
 
         /* --- KPI ANALYTICS STRIP --- */
@@ -152,7 +151,7 @@
             font-size: 1.65rem; background: rgba(37, 99, 235, 0.15); color: var(--primary-light);
         }
 
-        /* --- GLASS PANELS WITH RADIAL SPOTLIGHT --- */
+        /* --- GLASS PANELS --- */
         .glass-panel {
             background: var(--glass-bg); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%);
             border: 1px solid var(--glass-border); border-radius: 24px; padding: 28px;
@@ -172,7 +171,6 @@
         .panel-header h3 { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 9px; margin: 0; }
         .panel-header h3 i { color: var(--primary-light); font-size: 1.4rem; }
 
-        /* --- 2-COLUMN WORKSPACE GRID --- */
         .workspace-grid {
             display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 26px; align-items: start;
         }
@@ -217,19 +215,19 @@
         .edit-drawer.open { display: block; animation: fadeIn 0.25s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- LIVE ADMIN HARDWARE DIAGNOSTIC SCANNER --- */
+        /* --- LIVE ADMIN HARDWARE & NETWORK DIAGNOSTIC SCANNER --- */
         .scanner-box {
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(139, 92, 246, 0.1));
             border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 18px; padding: 18px 20px; margin-bottom: 22px;
             display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;
         }
-        .scanner-specs { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .scanner-specs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .spec-chip {
             background: rgba(2, 6, 23, 0.65); border: 1px solid var(--glass-border);
-            padding: 6px 12px; border-radius: 10px; font-size: 0.78rem; color: #e2e8f0;
+            padding: 6px 11px; border-radius: 10px; font-size: 0.76rem; color: #e2e8f0;
             display: inline-flex; align-items: center; gap: 6px; font-family: 'Fira Code', monospace;
         }
-        .spec-chip i { color: var(--primary-light); font-size: 1rem; }
+        .spec-chip i { color: var(--primary-light); font-size: 0.95rem; }
 
         /* --- REAL-TIME VISITOR TELEMETRY TABLE & FILTERS --- */
         .telemetry-toolbar {
@@ -246,7 +244,7 @@
         }
         .search-box {
             display: flex; align-items: center; gap: 8px; background: var(--input-bg);
-            border: 1px solid var(--glass-border); padding: 8px 14px; border-radius: 12px; min-width: 260px;
+            border: 1px solid var(--glass-border); padding: 8px 14px; border-radius: 12px; min-width: 280px;
         }
         .search-box i { color: var(--primary-light); }
         .search-box input {
@@ -255,17 +253,17 @@
         }
 
         .telemetry-table-wrap {
-            width: 100%; overflow-x: auto; max-height: 520px; overflow-y: auto;
+            width: 100%; overflow-x: auto; max-height: 580px; overflow-y: auto;
             border: 1px solid var(--glass-border); border-radius: 16px;
         }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1050px; }
         th {
             position: sticky; top: 0; background: #0f172a; color: #94a3b8;
-            font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.8px;
-            padding: 14px 16px; border-bottom: 1px solid var(--glass-border); z-index: 5;
+            font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px;
+            padding: 14px 14px; border-bottom: 1px solid var(--glass-border); z-index: 5;
         }
         td {
-            padding: 14px 16px; font-size: 0.85rem; border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+            padding: 13px 14px; font-size: 0.83rem; border-bottom: 1px solid rgba(148, 163, 184, 0.08);
             vertical-align: middle;
         }
         tr.visitor-row { transition: background 0.2s; }
@@ -273,7 +271,7 @@
 
         .hw-badge {
             display: inline-flex; align-items: center; gap: 7px; font-weight: 700;
-            padding: 5px 12px; border-radius: 10px; font-size: 0.82rem;
+            padding: 5px 11px; border-radius: 10px; font-size: 0.8rem;
             background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
         }
         .hw-apple { color: #f8fafc; border-color: rgba(248, 250, 252, 0.25); background: rgba(248, 250, 252, 0.08); }
@@ -281,6 +279,22 @@
         .hw-samsung { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.1); }
         .hw-android { color: #34d399; border-color: rgba(52, 211, 153, 0.3); background: rgba(52, 211, 153, 0.1); }
         .hw-windows { color: #60a5fa; border-color: rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.1); }
+
+        .sub-meta {
+            display: block; font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .isp-pill {
+            display: inline-flex; align-items: center; gap: 5px; font-size: 0.74rem; font-weight: 600;
+            color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 3px 9px; border-radius: 6px; margin-top: 4px;
+        }
+        .net-pill {
+            display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; font-weight: 700;
+            color: #a78bfa; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.28);
+            padding: 4px 9px; border-radius: 8px;
+        }
 
         .type-pill {
             display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px;
@@ -302,17 +316,16 @@
             padding: 2px 7px; border-radius: 50px; font-weight: 700; margin-left: 5px;
         }
 
-        /* --- RESPONSIVE BREAKPOINTS --- */
         @media (max-width: 980px) {
             .workspace-grid { grid-template-columns: 1fr; }
             .form-row-2 { grid-template-columns: 1fr; }
         }
         @media (max-width: 640px) {
             .admin-nav { padding: 12px 4%; }
-            .admin-container { width: 95%; margin-top: 20px; }
+            .admin-container { width: 96%; margin-top: 20px; }
             .glass-panel { padding: 18px; border-radius: 18px; }
             .project-item-top { flex-direction: column; }
-            .search-box { width: 100%; }
+            .search-box { width: 100%; min-width: 100%; }
             .scanner-box { flex-direction: column; align-items: flex-start; }
         }
     </style>
@@ -328,7 +341,7 @@
         <div class="login-box gsap-reveal">
             <div class="login-shield"><i class='bx bxs-shield-alt-2'></i></div>
             <h2>Admin Access</h2>
-            <p>Authenticate to unlock portfolio controls & real-time hardware telemetry.</p>
+            <p>Authenticate to unlock portfolio controls & deep network/hardware telemetry.</p>
             <form method="POST" action="{{ url_for('admin') }}">
                 <input type="password" name="password" required placeholder="Enter admin password..." autofocus style="margin-bottom: 18px;">
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px;">
@@ -346,7 +359,7 @@
     <nav class="admin-nav">
         <div class="brand">
             <div class="brand-icon"><i class='bx bxs-dashboard'></i></div>
-            <div class="brand-text">Suman<span>OS</span> Admin <span class="live-dot" title="Telemetry Online"></span></div>
+            <div class="brand-text">Suman<span>OS</span> Radar <span class="live-dot" title="Telemetry Online"></span></div>
         </div>
         <div class="admin-nav-links">
             <button type="button" class="btn btn-ghost btn-sm" id="themeSwitchBtn" onclick="toggleAdminTheme()">
@@ -403,10 +416,10 @@
             </div>
         </div>
 
-        <!-- ==================== REAL-TIME VISITOR TELEMETRY & HARDWARE IDENTIFIER ==================== -->
+        <!-- ==================== DEEP NETWORK, ISP, LOCATION & HARDWARE TELEMETRY ==================== -->
         <div class="glass-panel gsap-reveal">
             <div class="panel-header">
-                <h3><i class='bx bx-radar'></i> Real-Time Hardware & OS Telemetry Engine</h3>
+                <h3><i class='bx bx-radar'></i> Deep Network, ISP, Location & Hardware Radar</h3>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button type="button" class="btn btn-ghost btn-sm" onclick="exportLogsCSV()">
                         <i class='bx bx-spreadsheet'></i> Export CSV
@@ -419,14 +432,14 @@
                 </div>
             </div>
 
-            <!-- Live Admin Session Hardware Inspector -->
+            <!-- Live Admin Session Hardware & ISP Inspector -->
             <div class="scanner-box">
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-light); margin-bottom: 8px;">
-                        <i class='bx bx-chip'></i> Your Current Device Hardware Fingerprint (Live Probe)
+                        <i class='bx bx-chip'></i> Your Current Device, ISP & Network Probe
                     </div>
                     <div class="scanner-specs" id="liveAdminSpecs">
-                        <span class="spec-chip"><i class='bx bx-loader-alt bx-spin'></i> Scanning hardware...</span>
+                        <span class="spec-chip"><i class='bx bx-loader-alt bx-spin'></i> Probing hardware, ISP & network speed...</span>
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary btn-sm" id="testTrackerBtn" onclick="testAndLogCurrentDevice()">
@@ -446,7 +459,7 @@
                 </div>
                 <div class="search-box">
                     <i class='bx bx-search'></i>
-                    <input type="text" id="logSearchInput" placeholder="Search IP, Nothing, iPhone, Samsung, OS...">
+                    <input type="text" id="logSearchInput" placeholder="Search IP, Jio, Airtel, City, Phone Model, OS...">
                 </div>
             </div>
 
@@ -456,10 +469,12 @@
                     <thead>
                         <tr>
                             <th>Timestamp</th>
-                            <th>IP Address</th>
-                            <th>Identified Hardware / Model</th>
-                            <th>Operating System</th>
-                            <th>Browser Engine</th>
+                            <th>IP & Telecom / ISP</th>
+                            <th>Location Radar</th>
+                            <th>Identified Hardware & GPU</th>
+                            <th>OS & Browser</th>
+                            <th>Network Speed</th>
+                            <th>Display, TZ & Lang</th>
                             <th>Form Factor</th>
                         </tr>
                     </thead>
@@ -470,18 +485,43 @@
                             {% set os_str = visitor.os | default('Unknown OS') %}
                             {% set br_str = visitor.browser | default('Browser') %}
                             {% set type_str = visitor.type | default('Desktop') %}
+                            {% set loc_str = visitor.location | default('Unknown Location') %}
+                            {% set isp_str = visitor.isp | default('Standard ISP') %}
+                            {% set net_type = visitor.net_type | default('Online') %}
+                            {% set net_speed = visitor.net_speed | default('Auto') %}
+                            {% set screen_str = visitor.screen | default('Standard') %}
+                            {% set tz_str = visitor.timezone | default('UTC') %}
+                            {% set lang_str = visitor.language | default('en') %}
+                            {% set gpu_str = visitor.gpu | default('') %}
+                            {% set specs_str = visitor.hw_specs | default('') %}
+
                             <tr class="visitor-row" data-type="{{ type_str }}">
-                                <td style="white-space: nowrap; color: var(--text-muted); font-family: 'Fira Code', monospace; font-size: 0.78rem;">
+                                <!-- 1. Timestamp -->
+                                <td style="white-space: nowrap; color: var(--text-muted); font-family: 'Fira Code', monospace; font-size: 0.76rem;">
                                     <i class='bx bx-time-five' style="color: var(--primary-light);"></i> {{ visitor.time }}
                                 </td>
+
+                                <!-- 2. IP & ISP / Telecom Provider -->
                                 <td>
-                                    <span class="ip-chip" onclick="copyIP('{{ visitor.ip }}', this)" title="Click to copy IP">
-                                        <i class='bx bx-copy'></i> {{ visitor.ip }}
-                                    </span>
-                                    {% if visitor.hits is defined and visitor.hits > 1 %}
-                                        <span class="hits-badge" title="Repeat visits from this IP">{{ visitor.hits }}x</span>
-                                    {% endif %}
+                                    <div>
+                                        <span class="ip-chip" onclick="copyIP('{{ visitor.ip }}', this)" title="Click to copy IP">
+                                            <i class='bx bx-copy'></i> {{ visitor.ip }}
+                                        </span>
+                                        {% if visitor.hits is defined and visitor.hits > 1 %}
+                                            <span class="hits-badge" title="Repeat visits">{{ visitor.hits }}x</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="isp-pill">
+                                        <i class='bx bx-station'></i> {{ isp_str }}
+                                    </div>
                                 </td>
+
+                                <!-- 3. City, Region & Country -->
+                                <td style="font-weight: 600;">
+                                    <i class='bx bxs-map-pin' style="color: #f43f5e;"></i> {{ loc_str }}
+                                </td>
+
+                                <!-- 4. Identified Hardware & GPU -->
                                 <td>
                                     {% if 'Nothing' in dev_str or 'CMF' in dev_str or 'A063' in dev_str or 'A065' in dev_str or 'A142' in dev_str %}
                                         <span class="hw-badge hw-nothing"><i class='bx bx-radio-circle-marked'></i> {{ dev_str }}</span>
@@ -496,37 +536,49 @@
                                     {% else %}
                                         <span class="hw-badge"><i class='bx bx-chip'></i> {{ dev_str }}</span>
                                     {% endif %}
-                                </td>
-                                <td style="font-weight: 600;">
-                                    {% if 'Android' in os_str %}
-                                        <i class='bx bxl-android' style="color:#34d399;"></i>
-                                    {% elif 'iOS' in os_str or 'macOS' in os_str or 'iPadOS' in os_str %}
-                                        <i class='bx bxl-apple' style="color:#f8fafc;"></i>
-                                    {% elif 'Windows' in os_str %}
-                                        <i class='bx bxl-windows' style="color:#60a5fa;"></i>
-                                    {% elif 'Linux' in os_str or 'Ubuntu' in os_str %}
-                                        <i class='bx bxl-tux' style="color:#fbbf24;"></i>
+                                    {% if gpu_str or specs_str %}
+                                        <span class="sub-meta">
+                                            {{ gpu_str }}{% if gpu_str and specs_str %} • {% endif %}{{ specs_str }}
+                                        </span>
                                     {% endif %}
-                                    {{ os_str }}
                                 </td>
-                                <td style="color: var(--text-muted); font-size: 0.82rem;">
-                                    {% if 'Instagram' in br_str %}
-                                        <i class='bx bxl-instagram' style="color:#ec4899;"></i>
-                                    {% elif 'WhatsApp' in br_str %}
-                                        <i class='bx bxl-whatsapp' style="color:#25d366;"></i>
-                                    {% elif 'Chrome' in br_str %}
-                                        <i class='bx bxl-chrome' style="color:#60a5fa;"></i>
-                                    {% elif 'Safari' in br_str %}
-                                        <i class='bx bxl-compass' style="color:#38bdf8;"></i>
-                                    {% elif 'Edge' in br_str %}
-                                        <i class='bx bxl-edge' style="color:#3b82f6;"></i>
-                                    {% elif 'Firefox' in br_str %}
-                                        <i class='bx bxl-firefox' style="color:#f97316;"></i>
-                                    {% else %}
-                                        <i class='bx bx-globe'></i>
-                                    {% endif %}
-                                    {{ br_str }}
+
+                                <!-- 5. OS & Browser -->
+                                <td>
+                                    <div style="font-weight: 600;">
+                                        {% if 'Android' in os_str %}
+                                            <i class='bx bxl-android' style="color:#34d399;"></i>
+                                        {% elif 'iOS' in os_str or 'macOS' in os_str or 'iPadOS' in os_str %}
+                                            <i class='bx bxl-apple' style="color:#f8fafc;"></i>
+                                        {% elif 'Windows' in os_str %}
+                                            <i class='bx bxl-windows' style="color:#60a5fa;"></i>
+                                        {% elif 'Linux' in os_str or 'Ubuntu' in os_str %}
+                                            <i class='bx bxl-tux' style="color:#fbbf24;"></i>
+                                        {% endif %}
+                                        {{ os_str }}
+                                    </div>
+                                    <span class="sub-meta">
+                                        <i class='bx bx-globe'></i> {{ br_str }}
+                                    </span>
                                 </td>
+
+                                <!-- 6. Network Speed & Type -->
+                                <td>
+                                    <span class="net-pill">
+                                        <i class='bx bx-wifi'></i> {{ net_type }}
+                                    </span>
+                                    <span class="sub-meta">{{ net_speed }}</span>
+                                </td>
+
+                                <!-- 7. Screen Resolution, Timezone & Language -->
+                                <td>
+                                    <div style="font-family: 'Fira Code', monospace; font-size: 0.78rem; font-weight: 600;">
+                                        <i class='bx bx-fullscreen' style="color:var(--primary-light);"></i> {{ screen_str }}
+                                    </div>
+                                    <span class="sub-meta">{{ tz_str }} • {{ lang_str }}</span>
+                                </td>
+
+                                <!-- 8. Form Factor -->
                                 <td>
                                     {% if type_str == 'Mobile' %}
                                         <span class="type-pill type-mobile"><i class='bx bx-mobile-alt'></i> Mobile</span>
@@ -540,9 +592,9 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
                                     <i class='bx bx-radar' style="font-size: 2rem; color: var(--primary-light); display: block; margin-bottom: 8px;"></i>
-                                    No visitors logged yet. Click <strong>"Test & Log My Device"</strong> above to test real-time hardware recognition!
+                                    No visitors logged yet. Open your portfolio on Desktop and Mobile or click <strong>"Test & Log My Device"</strong>!
                                 </td>
                             </tr>
                         {% endif %}
@@ -554,13 +606,13 @@
         <!-- ==================== GENERAL SETTINGS & PROJECTS WORKSPACE ==================== -->
         <div class="workspace-grid">
 
-            <!-- Left Column: General Settings & Focus Links (Connected to /admin POST) -->
+            <!-- Left Column: General Settings & Focus Links -->
             <div class="glass-panel gsap-reveal">
                 <div class="panel-header">
                     <h3><i class='bx bx-slider-alt'></i> General & Focus Settings</h3>
                 </div>
 
-                <form method="POST" action="/admin">
+                <form method="POST" action="{{ url_for('admin') }}">
                     <div class="form-group">
                         <label><i class='bx bx-user-pin'></i> About Me Bio (Type 1., 2., 3. on new lines)</label>
                         <textarea name="about_text" required>{{ data.about_text }}</textarea>
@@ -595,7 +647,6 @@
 
             <!-- Right Column: Add Project + Manage Recent Projects -->
             <div>
-                <!-- Add New Project Card -->
                 <div class="glass-panel gsap-reveal" style="border-color: rgba(16, 185, 129, 0.3);">
                     <div class="panel-header">
                         <h3 style="color: #34d399;"><i class='bx bx-plus-circle' style="color: #34d399;"></i> Publish New Project</h3>
@@ -613,7 +664,6 @@
                     </form>
                 </div>
 
-                <!-- Manage Existing Projects Card -->
                 <div class="glass-panel gsap-reveal">
                     <div class="panel-header">
                         <h3><i class='bx bx-code-block'></i> Manage Recent Projects ({{ data.projects | length }})</h3>
@@ -652,7 +702,6 @@
                             </div>
                         </div>
 
-                        <!-- In-Place Edit Drawer -->
                         <div class="edit-drawer" id="editDrawer-{{ i }}">
                             <form action="/edit_project/{{ i }}" method="POST">
                                 <label>Update Title</label>
@@ -676,8 +725,9 @@
     </div>
     {% endif %}
 
+    <!-- Load tracker.js so admin panel uses the exact same v5.0 radar engine -->
+    <script src="{{ url_for('static', filename='tracker.js') }}"></script>
     <script>
-        // --- 1. GSAP ENTRANCE & RADIAL CARD SPOTLIGHT ---
         document.addEventListener("DOMContentLoaded", () => {
             gsap.from(".gsap-reveal", {
                 y: 28,
@@ -700,7 +750,6 @@
             }
         });
 
-        // --- 2. THEME SWITCHER (DARK / LIGHT) ---
         function toggleAdminTheme() {
             document.body.classList.toggle("light-mode");
             const isLight = document.body.classList.contains("light-mode");
@@ -710,13 +759,11 @@
             document.body.classList.add("light-mode");
         }
 
-        // --- 3. IN-PLACE PROJECT EDIT TOGGLE ---
         function toggleProjectEdit(idx) {
             const drawer = document.getElementById("editDrawer-" + idx);
             if (drawer) drawer.classList.toggle("open");
         }
 
-        // --- 4. COPY IP ADDRESS HELPER ---
         function copyIP(ip, el) {
             navigator.clipboard.writeText(ip);
             const originalHTML = el.innerHTML;
@@ -724,9 +771,7 @@
             setTimeout(() => { el.innerHTML = originalHTML; }, 1400);
         }
 
-        // --- 5. TELEMETRY TABLE FILTER & INSTANT SEARCH ---
         let currentTypeFilter = "ALL";
-
         function filterLogsByType(type, btn) {
             currentTypeFilter = type;
             document.querySelectorAll(".filter-tab").forEach(b => b.classList.remove("active"));
@@ -749,113 +794,48 @@
             });
         }
 
-        // --- 6. EXPORT VISITOR TELEMETRY TO CSV ---
         function exportLogsCSV() {
-            const rows = [["Timestamp", "IP Address", "Hardware Model", "OS", "Browser", "Form Factor"]];
+            const rows = [["Timestamp", "IP & ISP", "Location", "Hardware & GPU", "OS & Browser", "Network Speed", "Display & Timezone", "Form Factor"]];
             document.querySelectorAll(".visitor-row").forEach(tr => {
                 if (tr.style.display !== "none") {
-                    const cols = Array.from(tr.querySelectorAll("td")).map(td => `"${td.innerText.trim().replace(/"/g, '""')}"`);
+                    const cols = Array.from(tr.querySelectorAll("td")).map(td => `"${td.innerText.replace(/\s+/g, ' ').trim().replace(/"/g, '""')}"`);
                     rows.push(cols);
                 }
             });
             const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csvContent));
-            link.setAttribute("download", `suman_visitor_telemetry_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `suman_deep_telemetry_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             link.remove();
         }
 
-        // --- 7. REAL-TIME HARDWARE DIAGNOSTIC ENGINE (ADMIN LIVE SCANNER) ---
         let detectedAdminPayload = null;
-
-        async function detectCurrentAdminHardware() {
-            const rawUA = navigator.userAgent || "";
-            const ua = rawUA.toLowerCase();
-            const screenSig = `${window.screen.width}x${window.screen.height}@${window.devicePixelRatio || 1}x`;
-
-            // Unmasked WebGL GPU
-            let gpu = "Standard GPU";
-            try {
-                const canvas = document.createElement("canvas");
-                const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-                if (gl) {
-                    const dbg = gl.getExtension("WEBGL_debug_renderer_info");
-                    if (dbg) gpu = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
-                }
-            } catch (e) {}
-
-            let os = "Unknown OS";
-            let browser = "Browser";
-            let device = "Desktop / PC";
-            let type = (/Mobile|Android|iP(hone|od)/i.test(rawUA)) ? "Mobile" : "Desktop";
-
-            if (ua.includes("edg/")) browser = "Edge";
-            else if (ua.includes("chrome/")) browser = "Chrome";
-            else if (ua.includes("safari/") && !ua.includes("chrome")) browser = "Safari";
-            else if (ua.includes("firefox/")) browser = "Firefox";
-
-            if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
-                try {
-                    const hints = await navigator.userAgentData.getHighEntropyValues(["platform", "platformVersion", "model"]);
-                    if (hints.platform === "Windows") {
-                        const major = parseInt((hints.platformVersion || "0").split(".")[0], 10);
-                        os = major >= 13 ? "Windows 11" : "Windows 10";
-                    } else if (hints.platform === "Android") {
-                        os = `Android ${(hints.platformVersion || "").split(".")[0] || ""}`.trim();
-                    } else if (hints.platform) {
-                        os = `${hints.platform} ${(hints.platformVersion || "").split(".")[0] || ""}`.trim();
-                    }
-                    if (hints.model) device = hints.model;
-                } catch (e) {}
-            }
-
-            if (/iphone/i.test(rawUA)) {
-                type = "Mobile";
-                os = "iOS";
-                device = `Apple iPhone (${screenSig})`;
-            } else if (/macintosh|mac os x/i.test(rawUA)) {
-                type = "Desktop";
-                if (os === "Unknown OS") os = "macOS";
-                const mChip = gpu.match(/Apple M\d+(?:\s+(?:Pro|Max|Ultra))?/i);
-                device = mChip ? `Apple Mac (${mChip[0]})` : `Apple Mac (${screenSig})`;
-            } else if (/android/i.test(rawUA) && device === "Desktop / PC") {
-                type = "Mobile";
-                const match = rawUA.match(/Android[^;]+;\s*([^;)]+?)(?:\s+Build\/|;\s*wv|\))/i);
-                device = (match && match[1] && match[1] !== "K") ? match[1].trim() : `Android (${screenSig})`;
-            }
-
-            const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} Cores` : "CPU";
-            const ram = navigator.deviceMemory ? `${navigator.deviceMemory}GB RAM` : "";
-
-            return { os, browser, device, type, gpu, cores, ram, screenSig };
-        }
 
         async function runAdminHardwareDiagnostic() {
             const container = document.getElementById("liveAdminSpecs");
-            if (!container) return;
-            const info = await detectCurrentAdminHardware();
-            detectedAdminPayload = {
-                os: info.os,
-                browser: info.browser,
-                device: info.device,
-                type: info.type
-            };
+            if (!container || typeof window.getSumanRealDeviceTelemetry !== "function") return;
 
-            const shortGpu = info.gpu.replace(/ANGLE \((.+)\)/i, "$1").split(",")[0].trim();
+            const info = await window.getSumanRealDeviceTelemetry();
+            detectedAdminPayload = info;
+
             container.innerHTML = `
-                <span class="spec-chip"><i class='bx bx-mobile-alt'></i> <strong>Model:</strong> ${info.device}</span>
+                <span class="spec-chip"><i class='bx bx-mobile-alt'></i> <strong>Device:</strong> ${info.device} (${info.type})</span>
                 <span class="spec-chip"><i class='bx bx-cog'></i> <strong>OS:</strong> ${info.os}</span>
-                <span class="spec-chip"><i class='bx bx-microchip'></i> <strong>GPU:</strong> ${shortGpu}</span>
-                <span class="spec-chip"><i class='bx bx-fullscreen'></i> <strong>Display:</strong> ${info.screenSig}</span>
-                <span class="spec-chip"><i class='bx bx-chip'></i> ${info.cores} ${info.ram ? "• " + info.ram : ""}</span>
+                <span class="spec-chip"><i class='bx bx-microchip'></i> <strong>GPU:</strong> ${info.gpu}</span>
+                <span class="spec-chip"><i class='bx bx-station'></i> <strong>ISP:</strong> ${info.isp || 'Detecting...'}</span>
+                <span class="spec-chip"><i class='bx bxs-map-pin'></i> <strong>Loc:</strong> ${info.location || 'Local'}</span>
+                <span class="spec-chip"><i class='bx bx-wifi'></i> <strong>Net:</strong> ${info.net_type} • ${info.net_speed}</span>
+                <span class="spec-chip"><i class='bx bx-fullscreen'></i> <strong>Display:</strong> ${info.screen}</span>
             `;
         }
 
         async function testAndLogCurrentDevice() {
             const btn = document.getElementById("testTrackerBtn");
-            if (!detectedAdminPayload) await runAdminHardwareDiagnostic();
+            if (!detectedAdminPayload && typeof window.getSumanRealDeviceTelemetry === "function") {
+                detectedAdminPayload = await window.getSumanRealDeviceTelemetry();
+            }
             btn.innerHTML = `<i class='bx bx-loader-alt bx-spin'></i> Logging...`;
             try {
                 const res = await fetch("/log_visitor", {
@@ -864,7 +844,7 @@
                     body: JSON.stringify(detectedAdminPayload)
                 });
                 if (res.ok) {
-                    btn.innerHTML = `<i class='bx bx-check-Double'></i> Logged! Refreshing...`;
+                    btn.innerHTML = `<i class='bx bx-check-double'></i> Logged! Refreshing...`;
                     btn.style.background = "#10b981";
                     setTimeout(() => window.location.reload(), 600);
                 }

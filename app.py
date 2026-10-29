@@ -2,6 +2,7 @@ import json
 import os
 import threading
 import time
+import urllib.request
 from datetime import datetime
 from functools import wraps
 from flask import (
@@ -12,8 +13,7 @@ from flask import (
     url_for,
     session,
     jsonify,
-    send_file,
-    Response
+    send_file
 )
 
 # --- 1. APP & WSGI-SAFE PATH CONFIGURATION ---
@@ -25,15 +25,12 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates")
 )
 
-# Uses environment variable in production if set, falls back to your key
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "super_secret_epic_key_suman_2026")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "SUMANM0405")
 DATA_FILE = os.path.join(BASE_DIR, "data.json")
 
-# Thread lock to prevent concurrent JSON file corruption on WSGI servers
 data_lock = threading.RLock()
 
-# In-memory brute-force tracker for /admin login: { ip: {"count": int, "lock_until": float} }
 login_attempts = {}
 MAX_LOGIN_ATTEMPTS = 5
 LOCKOUT_SECONDS = 900  # 15 minutes
@@ -44,14 +41,14 @@ def get_default_data():
     return {
         "about_text": (
             "1. I have a strong interest in full-stack programming and cloud architecture.\n"
-            "2. I enjoy building applications with Python, Flask, HTML, CSS, JavaScript, C++, and R.\n"
-            "3. Experienced in deploying scalable projects across AWS (EC2 & S3), PythonAnywhere, Vercel, and Netlify."
+            "2. I enjoy building applications with Python, Flask, Django, HTML, CSS, JavaScript, C++, and R.\n"
+            "3. Experienced in deploying projects across AWS (EC2 & S3), PythonAnywhere, Vercel, Netlify, and Replit."
         ),
         "insta_link": "https://instagram.com/__suman._.007",
         "focus_1_title": "Full-Stack Web Development",
-        "focus_1_desc": "Scalable Python Flask & interactive 3D web apps",
+        "focus_1_desc": "Scalable Python Flask, Django & interactive 3D web apps",
         "focus_1_link": "#projects",
-        "focus_2_title": "Cloud & UI Engineering",
+        "focus_2_title": "Cloud & Software Hosting",
         "focus_2_desc": "AWS (EC2 & S3), modern glassmorphism & motion UI",
         "focus_2_link": "#skills",
         "projects": [
@@ -90,7 +87,6 @@ def load_data():
                 data = json.load(f)
                 if not isinstance(data, dict):
                     return default_data
-                # Ensure all default keys exist for backwards compatibility
                 for key, val in default_data.items():
                     if key not in data:
                         data[key] = val
@@ -117,7 +113,7 @@ def save_data(data):
                     pass
 
 
-# --- 3. HELPER UTILITIES & DECORATORS ---
+# --- 3. HELPER UTILITIES & CLIENT HINTS HEADERS ---
 def get_client_ip():
     """Safely extracts visitor IP behind proxies (PythonAnywhere, Cloudflare, AWS, Nginx)."""
     forwarded = request.headers.get("X-Forwarded-For", "")
@@ -127,6 +123,40 @@ def get_client_ip():
     if real_ip:
         return real_ip.strip()
     return request.remote_addr or "Unknown"
+
+
+GEO_CACHE = {}
+
+def server_lookup_geo_isp(ip_addr):
+    """
+    Looks up Public IP, City/Region/Country, and ISP server-side with caching.
+    Even on localhost (127.0.0.1), automatically resolves your real public IP and ISP!
+    """
+    cache_key = ip_addr or "local"
+    if cache_key in GEO_CACHE:
+        return GEO_CACHE[cache_key]
+
+    # If on localhost/LAN, query without IP parameter so ip-api detects our real public IP
+    is_local = (not ip_addr) or ip_addr in ("127.0.0.1", "::1", "localhost", "Unknown") or ip_addr.startswith("192.168.") or ip_addr.startswith("10.")
+    target_query = "" if is_local else ip_addr
+
+    try:
+        url = f"http://ip-api.com/json/{target_query}?fields=status,country,regionName,city,isp,org,query"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=2.5) as resp:
+            info = json.loads(resp.read().decode("utf-8"))
+            if info.get("status") == "success":
+                resolved_ip = info.get("query") or ip_addr
+                loc = ", ".join(filter(None, [info.get("city"), info.get("regionName"), info.get("country")])) or "Unknown Location"
+                isp = info.get("isp") or info.get("org") or "Standard ISP"
+                result = (resolved_ip, loc, isp)
+                GEO_CACHE[cache_key] = result
+                return result
+    except Exception:
+        pass
+
+    fallback = (ip_addr or "Unknown", "Unknown Location", "Standard ISP")
+    return fallback
 
 
 def admin_required(f):
@@ -142,15 +172,25 @@ def admin_required(f):
 
 
 @app.after_request
-def apply_security_headers(response):
-    """Adds enterprise HTTP security headers to all responses."""
+def apply_security_and_client_hint_headers(response):
+    """
+    Instructs mobile browsers (Android Chrome/Edge/Opera) to unlock High-Entropy
+    Hardware Model & OS Version headers on page load and fetch calls.
+    """
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Accept-CH"] = (
+        "Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Model, "
+        "Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List"
+    )
+    response.headers["Permissions-Policy"] = (
+        "ch-ua-model=(self), ch-ua-platform=(self), ch-ua-platform-version=(self)"
+    )
     return response
 
 
-# --- 4. PUBLIC PORTFOLIO & TRACKER ROUTES ---
+# --- 4. PUBLIC PORTFOLIO & DEEP TELEMETRY TRACKER ROUTES ---
 @app.route("/")
 def home():
     data = load_data()
@@ -159,35 +199,70 @@ def home():
 
 @app.route("/log_visitor", methods=["POST"])
 def log_visitor():
-    """Logs visitor device telemetry from tracker.js with smart deduplication."""
+    """Logs visitor hardware, ISP, geolocation, and network speed with zero browser 429 errors."""
     try:
         client_data = request.get_json(silent=True)
         if not client_data or not isinstance(client_data, dict):
             return jsonify({"status": "error", "message": "Invalid JSON payload"}), 400
 
-        ip_addr = get_client_ip()
+        raw_ip = get_client_ip()
+        ip_addr, location, isp = server_lookup_geo_isp(raw_ip)
+
         now_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
         now_ts = time.time()
+
+        header_model = request.headers.get("Sec-CH-UA-Model", "").strip('" ')
+        header_mobile = request.headers.get("Sec-CH-UA-Mobile", "")
+
+        os_name = str(client_data.get("os", "Unknown OS")).strip()[:60]
+        browser_name = str(client_data.get("browser", "Unknown Browser")).strip()[:60]
+        device_name = str(client_data.get("device", "Unknown Device")).strip()[:80]
+        device_type = str(client_data.get("type", "Desktop")).strip()[:30]
+
+        if header_mobile == "?1" and device_type == "Desktop":
+            device_type = "Mobile"
+        if header_model and ("Smartphone" in device_name or "Unknown" in device_name or device_name == "Desktop / PC"):
+            device_name = header_model[:80]
+
+        gpu_name = str(client_data.get("gpu", "")).strip()[:80]
+        hw_specs = str(client_data.get("hw_specs", "")).strip()[:50]
+        screen_res = str(client_data.get("screen", "")).strip()[:40]
+        timezone = str(client_data.get("timezone", "")).strip()[:50]
+        language = str(client_data.get("language", "")).strip()[:20]
+        net_type = str(client_data.get("net_type", "Online")).strip()[:40]
+        net_speed = str(client_data.get("net_speed", "Auto")).strip()[:40]
 
         with data_lock:
             data = load_data()
             data["total_views"] = int(data.get("total_views", len(data.get("visitors", [])))) + 1
-
-            os_name = str(client_data.get("os", "Unknown OS"))[:60]
-            browser_name = str(client_data.get("browser", "Unknown Browser"))[:60]
-            device_name = str(client_data.get("device", "Unknown Device"))[:60]
-            device_type = str(client_data.get("type", "Unknown"))[:30]
-
-            # Smart deduplication: if the newest log is from the same IP within 5 minutes, update it
             visitors = data.get("visitors", [])
+
+            # Only merge if IP, Form Factor (Mobile vs Desktop), AND Device Model match within 5 mins
             if (
                 visitors
                 and visitors[0].get("ip") == ip_addr
+                and visitors[0].get("type") == device_type
+                and visitors[0].get("device") == device_name
                 and (now_ts - visitors[0].get("timestamp", 0)) < 300
             ):
-                visitors[0]["time"] = now_str
-                visitors[0]["timestamp"] = now_ts
-                visitors[0]["hits"] = int(visitors[0].get("hits", 1)) + 1
+                visitors[0].update({
+                    "time": now_str,
+                    "timestamp": now_ts,
+                    "os": os_name,
+                    "browser": browser_name,
+                    "device": device_name,
+                    "type": device_type,
+                    "gpu": gpu_name,
+                    "hw_specs": hw_specs,
+                    "screen": screen_res,
+                    "timezone": timezone,
+                    "language": language,
+                    "net_type": net_type,
+                    "net_speed": net_speed,
+                    "location": location,
+                    "isp": isp,
+                    "hits": int(visitors[0].get("hits", 1)) + 1
+                })
             else:
                 visitor_info = {
                     "time": now_str,
@@ -197,23 +272,36 @@ def log_visitor():
                     "browser": browser_name,
                     "device": device_name,
                     "type": device_type,
+                    "gpu": gpu_name,
+                    "hw_specs": hw_specs,
+                    "screen": screen_res,
+                    "timezone": timezone,
+                    "language": language,
+                    "net_type": net_type,
+                    "net_speed": net_speed,
+                    "location": location,
+                    "isp": isp,
                     "hits": 1
                 }
                 visitors.insert(0, visitor_info)
 
-            # Keep latest 150 visitor records
             data["visitors"] = visitors[:150]
             save_data(data)
 
-        return jsonify({"status": "success", "total_views": data["total_views"]})
+        return jsonify({
+            "status": "success",
+            "total_views": data["total_views"],
+            "ip": ip_addr,
+            "location": location,
+            "isp": isp
+        })
     except Exception as e:
         print("JS Tracker Error:", e)
         return jsonify({"status": "error"}), 500
 
-
 @app.route("/submit_inquiry", methods=["POST"])
 def submit_inquiry():
-    """Optional API route to save client inquiries from the popup form into data.json."""
+    """Saves client inquiries from the popup form into data.json."""
     try:
         payload = request.get_json(silent=True) or request.form
         name = str(payload.get("name", "")).strip()[:80]
@@ -251,16 +339,14 @@ def admin():
     client_ip = get_client_ip()
     now = time.time()
 
-    # Check if IP is currently locked out from failed password attempts
     attempt_info = login_attempts.get(client_ip, {"count": 0, "lock_until": 0})
     if attempt_info["lock_until"] > now:
         remaining_mins = int((attempt_info["lock_until"] - now) // 60) + 1
         return f"Too many failed login attempts. Try again in {remaining_mins} minute(s).", 429
 
-    # Handle Admin Login POST
     if request.method == "POST" and "password" in request.form:
         entered_pw = request.form.get("password", "")
-        if entered_pw == ADMIN_PASSWORD: #SUMANM0405
+        if entered_pw == ADMIN_PASSWORD:
             session["admin_logged_in"] = True
             login_attempts.pop(client_ip, None)
             return redirect(url_for("admin"))
@@ -271,13 +357,11 @@ def admin():
             login_attempts[client_ip] = attempt_info
             return "Incorrect Password! Try again.", 401
 
-    # Render Login View if not authenticated
     if not session.get("admin_logged_in"):
         return render_template("admin.html", logged_in=False)
 
     data = load_data()
 
-    # Handle Profile & Focus Settings Update POST
     if request.method == "POST" and "about_text" in request.form:
         with data_lock:
             data = load_data()
@@ -316,7 +400,6 @@ def add_project():
 @app.route("/edit_project/<int:idx>", methods=["POST"])
 @admin_required
 def edit_project(idx):
-    """Allows editing an existing project in-place from the Admin panel."""
     with data_lock:
         data = load_data()
         if 0 <= idx < len(data["projects"]):
@@ -332,7 +415,6 @@ def edit_project(idx):
 @app.route("/reorder_project/<int:idx>/<direction>", methods=["POST"])
 @admin_required
 def reorder_project(idx, direction):
-    """Moves a project card 'up' or 'down' in the display order."""
     with data_lock:
         data = load_data()
         projects = data.get("projects", [])
@@ -379,7 +461,6 @@ def delete_inquiries():
 @app.route("/admin/export_backup", methods=["GET"])
 @admin_required
 def export_backup():
-    """Downloads a complete JSON backup of data.json."""
     if not os.path.exists(DATA_FILE):
         save_data(get_default_data())
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -394,7 +475,6 @@ def export_backup():
 @app.route("/api/stats", methods=["GET"])
 @admin_required
 def api_stats():
-    """Returns live analytics summary for admin charts/widgets."""
     data = load_data()
     visitors = data.get("visitors", [])
     mobile_count = sum(1 for v in visitors if "mobile" in str(v.get("type", "")).lower())
@@ -414,7 +494,6 @@ def api_stats():
 
 @app.route("/health", methods=["GET"])
 def health():
-    """Lightweight uptime monitor endpoint for AWS / PythonAnywhere."""
     return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()}), 200
 
 
@@ -422,11 +501,13 @@ def health():
 def logout():
     session.pop("admin_logged_in", None)
     return redirect(url_for("home"))
+
+
 @app.errorhandler(404)
 def page_not_found(e):
-    """Renders the custom glassmorphic 404 error page for undefined routes."""
     data = load_data()
     return render_template("error.html", data=data), 404
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)

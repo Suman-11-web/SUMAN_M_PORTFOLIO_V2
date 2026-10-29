@@ -24,18 +24,7 @@
             "link": "#"
         }
     ],
-    "visitors": [
-        {
-            "time": "2026-10-29 05:12 PM",
-            "timestamp": 1793274163.925217,
-            "ip": "127.0.0.1",
-            "os": "macOS 27",
-            "browser": "Chrome 156",
-            "device": "Apple Mac (Apple M4)",
-            "type": "Desktop",
-            "hits": 1
-        }
-    ],
+    "visitors": [],
     "inquiries": [],
-    "total_views": 1
+    "total_views": 11
 }

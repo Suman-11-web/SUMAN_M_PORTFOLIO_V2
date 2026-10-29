@@ -1,66 +1,76 @@
 /**
- * SUMANOS REAL HARDWARE, OS & MOBILE IDENTIFIER ENGINE v4.0
- * Combines Client Hints (High-Entropy), WebGL GPU Fingerprinting,
- * Screen/Pixel-Ratio Probing, and Deep OEM / In-App Browser Regex.
+ * SUMANOS DEEP HARDWARE, OS & NETWORK RADAR ENGINE v5.1
+ * Zero external browser API calls (eliminates 429 Console & AdBlocker errors).
+ * Hardware, GPU, OS, Screen & Network Speed are probed locally; ISP & Geo are resolved & cached by Flask.
  */
 
 (function () {
-    // 1. Extract Real GPU Renderer via WebGL (Unmasks Apple M-Series, iPhone GPUs, Adreno/Mali)
+    "use strict";
+
+    // --- 1. EXTRACT REAL GPU RENDERER VIA WEBGL ---
     function getGPUInfo() {
         try {
             const canvas = document.createElement("canvas");
             const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
             if (!gl) return "";
             const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-            return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "";
+            if (!debugInfo) return "";
+            const raw = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || "";
+            const angleMatch = raw.match(/ANGLE \([^,]+,\s*([^,]+),/i);
+            if (angleMatch && angleMatch[1]) return angleMatch[1].trim();
+            return raw.replace(/ANGLE \((.+)\)/i, "$1").split(",")[0].trim();
         } catch (e) {
             return "";
         }
     }
 
-    // 2. Identify iPhone Models via Screen Resolution + Pixel Ratio
+    // --- 2. IDENTIFY APPLE iPHONE MODELS BY SCREEN VIEWPORT + PIXEL RATIO ---
     function detectiPhoneModel() {
         const w = Math.min(window.screen.width, window.screen.height);
         const h = Math.max(window.screen.width, window.screen.height);
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = Math.round(window.devicePixelRatio || 1);
         const sig = `${w}x${h}@${dpr}`;
 
         const iphoneMap = {
             "440x956@3": "Apple iPhone 16 Pro Max",
             "402x874@3": "Apple iPhone 16 Pro",
-            "430x932@3": "Apple iPhone 15/16 Plus or 14/15 Pro Max",
-            "393x852@3": "Apple iPhone 15/16 or 14/15 Pro",
-            "428x926@3": "Apple iPhone 12/13 Pro Max or 14 Plus",
+            "430x932@3": "Apple iPhone 15/16 Plus / 14-15 Pro Max",
+            "393x852@3": "Apple iPhone 15/16 / 14-15 Pro",
+            "428x926@3": "Apple iPhone 12/13 Pro Max / 14 Plus",
             "390x844@3": "Apple iPhone 12/13/14 / Pro",
             "414x896@3": "Apple iPhone XS Max / 11 Pro Max",
             "414x896@2": "Apple iPhone XR / 11",
             "375x812@3": "Apple iPhone X / XS / 11 Pro / 12-13 Mini",
             "414x736@3": "Apple iPhone 6+/7+/8+ Plus",
-            "375x667@2": "Apple iPhone SE / 6 / 7 / 8"
+            "375x667@2": "Apple iPhone SE / 6 / 7 / 8",
+            "320x568@2": "Apple iPhone SE (1st Gen) / 5s"
         };
-        return iphoneMap[sig] || `Apple iPhone (${w}x${h})`;
+        return iphoneMap[sig] || `Apple iPhone (${w}x${h} @${dpr}x)`;
     }
 
-    // 3. Map Android OEM Build Model Codes to Real Commercial Names
+    // --- 3. MAP ANDROID OEM MODEL CODES TO COMMERCIAL NAMES ---
     function mapAndroidModel(rawModel) {
         if (!rawModel) return "";
         const m = rawModel.trim();
         const upper = m.toUpperCase();
 
+        if (upper === "K" || upper === "GENERIC" || upper === "UNKNOWN") return "";
+
         // Nothing & CMF Phones
         if (upper.includes("A063")) return "Nothing Phone (1)";
         if (upper.includes("A065")) return "Nothing Phone (2)";
-        if (upper.includes("A142")) return "Nothing Phone (2a)";
         if (upper.includes("A142P")) return "Nothing Phone (2a) Plus";
+        if (upper.includes("A142")) return "Nothing Phone (2a)";
+        if (upper.includes("A059")) return "Nothing Phone (3a)";
         if (upper.includes("A015")) return "CMF Phone 1";
 
-        // Samsung Galaxy S / Z / A / M / F Series
+        // Samsung Galaxy Series
         if (upper.startsWith("SM-")) {
-            if (upper.startsWith("SM-S93")) return `Samsung Galaxy S25 Series (${m})`;
-            if (upper.startsWith("SM-S92")) return `Samsung Galaxy S24 Series (${m})`;
-            if (upper.startsWith("SM-S91")) return `Samsung Galaxy S23 Series (${m})`;
-            if (upper.startsWith("SM-S90")) return `Samsung Galaxy S22 Series (${m})`;
-            if (upper.startsWith("SM-G99")) return `Samsung Galaxy S21 Series (${m})`;
+            if (upper.startsWith("SM-S93")) return `Samsung Galaxy S25 (${m})`;
+            if (upper.startsWith("SM-S92")) return `Samsung Galaxy S24 (${m})`;
+            if (upper.startsWith("SM-S91")) return `Samsung Galaxy S23 (${m})`;
+            if (upper.startsWith("SM-S90")) return `Samsung Galaxy S22 (${m})`;
+            if (upper.startsWith("SM-G99")) return `Samsung Galaxy S21 (${m})`;
             if (upper.startsWith("SM-F9")) return `Samsung Galaxy Z Fold (${m})`;
             if (upper.startsWith("SM-F7")) return `Samsung Galaxy Z Flip (${m})`;
             if (upper.startsWith("SM-A")) return `Samsung Galaxy A-Series (${m})`;
@@ -72,13 +82,13 @@
         // Google Pixel
         if (upper.includes("PIXEL")) return `Google ${m}`;
 
-        // OnePlus (CPH / LE / NE / PJ)
+        // OnePlus & OPPO
         if (upper.startsWith("ONEPLUS") || upper.startsWith("LE2") || upper.startsWith("NE2") || upper.startsWith("PJZ")) {
-            return `OnePlus (${m})`;
+            return upper.includes("ONEPLUS") ? m : `OnePlus (${m})`;
         }
         if (upper.startsWith("CPH")) return `OnePlus / OPPO (${m})`;
 
-        // Vivo / iQOO
+        // Vivo & iQOO
         if (upper.startsWith("I2") || upper.includes("IQOO")) return `iQOO (${m})`;
         if (upper.startsWith("V2")) return `Vivo (${m})`;
 
@@ -86,45 +96,76 @@
         if (upper.startsWith("RMX")) return `Realme (${m})`;
 
         // Xiaomi / Redmi / POCO
-        if (upper.startsWith("M2") || upper.startsWith("21") || upper.startsWith("22") || upper.startsWith("23") || upper.startsWith("24")) {
+        if (/^(21|22|23|24|25)[0-9]{4}[A-Z0-9]+$/i.test(m) || upper.startsWith("M20") || upper.startsWith("M21")) {
             return `Xiaomi / Redmi / POCO (${m})`;
         }
+        if (upper.includes("REDMI") || upper.includes("POCO") || upper.includes("XIAOMI")) return m;
 
-        // Motorola
+        // Motorola & Infinix
         if (upper.startsWith("MOTO") || upper.startsWith("XT")) return `Motorola (${m})`;
+        if (upper.startsWith("X6")) return `Infinix (${m})`;
 
         return m;
     }
 
-    // 4. Main Async Hardware & OS Detection Engine
+    // --- 4. CAPTURE NETWORK SPEED, CONNECTION TYPE & LATENCY ---
+    function getNetworkTelemetry() {
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (!conn) {
+            return {
+                net_type: navigator.onLine ? "Online" : "Offline",
+                net_speed: "Auto"
+            };
+        }
+
+        const rawType = (conn.type || "").toLowerCase();
+        const effType = (conn.effectiveType || "").toUpperCase();
+        let label = effType || "Broadband";
+
+        if (rawType === "wifi") label = effType ? `Wi-Fi (${effType})` : "Wi-Fi";
+        else if (rawType === "cellular") label = effType ? `Cellular (${effType})` : "Mobile Data";
+        else if (rawType === "ethernet") label = "Ethernet LAN";
+        else if (effType === "4G") label = "4G / 5G / Wi-Fi";
+
+        const speed = typeof conn.downlink === "number" && conn.downlink > 0 ? `${conn.downlink} Mbps` : "Auto";
+        const rtt = typeof conn.rtt === "number" && conn.rtt > 0 ? `${conn.rtt} ms` : "";
+
+        return {
+            net_type: label,
+            net_speed: rtt ? `${speed} (${rtt})` : speed
+        };
+    }
+
+    // --- 5. MAIN HARDWARE, OS & NETWORK TELEMETRY COLLECTOR ---
     async function getRealDeviceData() {
         const rawUA = navigator.userAgent || "";
         const ua = rawUA.toLowerCase();
         const gpu = getGPUInfo();
-        const screenRes = `${window.screen.width}x${window.screen.height}`;
+        const dpr = Math.round((window.devicePixelRatio || 1) * 10) / 10;
+        const screenRes = `${window.screen.width}x${window.screen.height} @${dpr}x`;
+        const timezone = (Intl && Intl.DateTimeFormat && Intl.DateTimeFormat().resolvedOptions().timeZone) || "UTC";
+        const language = navigator.language || navigator.userLanguage || "en";
+        const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} Cores` : "";
+        const ram = navigator.deviceMemory ? `${navigator.deviceMemory}GB RAM` : "";
+        const hwSpecs = [cores, ram].filter(Boolean).join(" • ");
 
         let os = "Unknown OS";
         let browser = "Unknown Browser";
-        let device = "Desktop / PC";
+        let device = "";
         let type = "Desktop";
 
-        // --- A. DETECT BROWSER (Including Instagram, WhatsApp & In-App Browsers) ---
-        if (ua.includes("instagram")) {
-            browser = "Instagram In-App";
-        } else if (ua.includes("whatsapp") || ua.includes("wa_")) {
-            browser = "WhatsApp In-App";
-        } else if (ua.includes("fban") || ua.includes("fbav")) {
-            browser = "Facebook In-App";
-        } else if (ua.includes("linkedinapp")) {
-            browser = "LinkedIn In-App";
-        } else if (navigator.brave && (await navigator.brave.isBrave().catch(() => false))) {
-            browser = "Brave";
-        } else if (ua.includes("samsungbrowser/")) {
+        // A. Detect Browser
+        if (ua.includes("instagram")) browser = "Instagram App";
+        else if (ua.includes("whatsapp") || ua.includes("wa_")) browser = "WhatsApp App";
+        else if (ua.includes("fban") || ua.includes("fbav")) browser = "Facebook App";
+        else if (ua.includes("linkedinapp")) browser = "LinkedIn App";
+        else if (navigator.brave && (await navigator.brave.isBrave().catch(() => false))) browser = "Brave";
+        else if (ua.includes("samsungbrowser/")) {
             const v = rawUA.match(/SamsungBrowser\/([\d.]+)/i);
             browser = v ? `Samsung Internet ${v[1].split(".")[0]}` : "Samsung Internet";
         } else if (ua.includes("edg/") || ua.includes("edga/") || ua.includes("edgios/")) {
             const v = rawUA.match(/Edg[a-zA-Z]*\/([\d.]+)/i);
-            browser = v ? `Edge ${v[1].split(".")[0]}` : "Microsoft Edge";
+            browser = v ? `Edge ${v[1].split(".")[0]}` : "Edge";
         } else if (ua.includes("opr/") || ua.includes("opera") || ua.includes("opt/")) {
             browser = "Opera";
         } else if (ua.includes("crios/")) {
@@ -141,43 +182,47 @@
             browser = v ? `Safari ${v[1]}` : "Safari";
         }
 
-        // --- B. DETECT MOBILE / TABLET / DESKTOP TYPE ---
-        const isTouch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
-        const isIPadOS = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+        // B. Detect Mobile / Tablet / Desktop Form Factor
+        const maxTouch = navigator.maxTouchPoints || 0;
+        const smallestSide = Math.min(window.screen.width, window.screen.height);
+        const isIPadOS = navigator.platform === "MacIntel" && maxTouch > 1 && smallestSide >= 600;
+        const isMobileScreenWithTouch = maxTouch > 1 && smallestSide < 600;
 
-        if (isIPadOS || /ipad|tablet|playbook|silk/i.test(rawUA) || (/android/i.test(rawUA) && !/mobile/i.test(rawUA))) {
+        if (isIPadOS || /ipad|tablet|playbook|silk/i.test(rawUA)) {
             type = "Tablet";
-        } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/i.test(rawUA)) {
-            type = "Mobile";
-        } else if (navigator.userAgentData && navigator.userAgentData.mobile) {
+        } else if (
+            isMobileScreenWithTouch ||
+            /Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Opera M(obi|ini)/i.test(rawUA) ||
+            (navigator.userAgentData && navigator.userAgentData.mobile)
+        ) {
             type = "Mobile";
         } else {
             type = "Desktop";
         }
 
-        // --- C. MODERN CHROMIUM HIGH-ENTROPY CLIENT HINTS ---
+        // C. High-Entropy Client Hints
         if (navigator.userAgentData && typeof navigator.userAgentData.getHighEntropyValues === "function") {
             try {
                 const hints = await navigator.userAgentData.getHighEntropyValues([
                     "platform",
                     "platformVersion",
                     "model",
-                    "architecture",
-                    "bitness"
+                    "architecture"
                 ]);
 
                 if (hints.platform === "Android") {
+                    type = "Mobile";
                     const ver = hints.platformVersion ? hints.platformVersion.split(".")[0] : "";
                     os = ver && ver !== "0" ? `Android ${ver}` : "Android";
                 } else if (hints.platform === "Windows") {
-                    // Windows 11 = major platformVersion >= 13; Windows 10 = 1 to 12
                     const major = parseInt((hints.platformVersion || "0").split(".")[0], 10);
-                    if (major >= 13) os = "Windows 11";
-                    else if (major > 0) os = "Windows 10";
-                    else os = "Windows";
+                    os = major >= 13 ? "Windows 11" : major > 0 ? "Windows 10" : "Windows";
                 } else if (hints.platform === "macOS") {
                     const ver = hints.platformVersion ? hints.platformVersion.split(".")[0] : "";
                     os = ver ? `macOS ${ver}` : "macOS";
+                } else if (hints.platform === "iOS") {
+                    type = "Mobile";
+                    os = hints.platformVersion ? `iOS ${hints.platformVersion}` : "iOS";
                 } else if (hints.platform) {
                     os = hints.platform;
                 }
@@ -185,102 +230,89 @@
                 if (hints.model && hints.model.trim() !== "") {
                     device = mapAndroidModel(hints.model);
                 }
-            } catch (err) {
-                // High entropy blocked by browser privacy policy; falls back to UA + GPU below
-            }
+            } catch (e) {}
         }
 
-        // --- D. DEEP USER-AGENT & GPU FALLBACK (iOS, macOS, In-App Browsers, Firefox/Safari) ---
-
-        // 1. Apple iPhone
-        if (/iphone/i.test(rawUA)) {
+        // D. Deep User-Agent + WebGL GPU + Screen Fallback
+        if (/iphone/i.test(rawUA) || (type === "Mobile" && /Apple GPU/i.test(gpu))) {
             type = "Mobile";
             const iosMatch = rawUA.match(/OS (\d+[_\d]*)/i);
-            os = iosMatch ? `iOS ${iosMatch[1].replace(/_/g, ".")}` : "iOS";
-            device = detectiPhoneModel();
-        }
-        // 2. Apple iPad (including iPadOS masquerading as MacIntel)
-        else if (/ipad/i.test(rawUA) || isIPadOS) {
+            if (os === "Unknown OS" || os === "macOS") {
+                os = iosMatch ? `iOS ${iosMatch[1].replace(/_/g, ".")}` : "iOS";
+            }
+            if (!device) device = detectiPhoneModel();
+        } else if (/ipad/i.test(rawUA) || isIPadOS) {
             type = "Tablet";
             const iosMatch = rawUA.match(/OS (\d+[_\d]*)/i);
             os = iosMatch ? `iPadOS ${iosMatch[1].replace(/_/g, ".")}` : "iPadOS";
-            device = `Apple iPad (${screenRes})`;
-        }
-        // 3. Android (Fallback when Client Hints are missing or inside Instagram/WhatsApp)
-        else if (/android/i.test(rawUA)) {
-            if (type === "Desktop") type = "Mobile";
-
-            if (os === "Unknown OS" || os === "Android") {
+            if (!device) device = `Apple iPad (${window.screen.width}x${window.screen.height})`;
+        } else if (/android/i.test(rawUA) || (type === "Mobile" && /Adreno|Mali|PowerVR/i.test(gpu))) {
+            type = "Mobile";
+            if (os === "Unknown OS" || os === "Linux") {
                 const andMatch = rawUA.match(/Android\s+([\d.]+)/i);
                 os = andMatch ? `Android ${andMatch[1]}` : "Android";
             }
-
-            if (device === "Desktop / PC" || device === "Generic Android") {
-                // Extract model from "Android X; <MODEL> Build/..." or "; <MODEL>; wv)"
+            if (!device) {
                 const buildMatch = rawUA.match(/Android[^;]+;\s*([^;)]+?)(?:\s+Build\/|;\s*wv|\))/i);
                 if (buildMatch && buildMatch[1]) {
-                    const candidate = buildMatch[1].trim();
-                    // Ignore generic tokens like "K" from Chrome UA reduction
-                    if (candidate.toUpperCase() !== "K" && candidate.length > 1) {
-                        device = mapAndroidModel(candidate);
-                    }
-                }
-                if (device === "Desktop / PC" || device === "K") {
-                    const cleanGpu = gpu.replace(/ANGLE \((.+)\)/i, "\$1").split(",")[0].trim();
-                    device = cleanGpu ? `Android (${cleanGpu} • ${screenRes})` : `Android Smartphone (${screenRes})`;
+                    device = mapAndroidModel(buildMatch[1]);
                 }
             }
-        }
-        // 4. Apple Mac (macOS + Apple Silicon M1/M2/M3/M4 GPU detection)
-        else if (/macintosh|mac os x/i.test(rawUA)) {
-            type = "Desktop";
-            if (os === "Unknown OS" || os === "macOS") {
-                const macMatch = rawUA.match(/Mac OS X (\d+[._]\d+(?:[._]\d+)?)/i);
-                os = macMatch ? `macOS ${macMatch[1].replace(/_/g, ".")}` : "macOS";
+            if (!device) {
+                device = gpu
+                    ? `Android Smartphone (${gpu})`
+                    : `Android Smartphone (${window.screen.width}x${window.screen.height})`;
             }
-            if (gpu.includes("Apple M")) {
-                const mChip = gpu.match(/Apple M\d+(?:\s+(?:Pro|Max|Ultra))?/i);
-                device = mChip ? `Apple Mac (${mChip[0]})` : "Apple Silicon Mac";
-            } else if (gpu.includes("Apple GPU")) {
-                device = `Apple Silicon Mac (${screenRes})`;
-            } else {
-                device = `Apple Mac (${screenRes})`;
-            }
-        }
-        // 5. Windows Desktop/Laptop
-        else if (/windows nt/i.test(rawUA)) {
+        } else if (/macintosh|mac os x/i.test(rawUA)) {
             type = "Desktop";
             if (os === "Unknown OS") {
-                if (rawUA.includes("Windows NT 10.0")) os = "Windows 10/11";
-                else if (rawUA.includes("Windows NT 6.3")) os = "Windows 8.1";
-                else if (rawUA.includes("Windows NT 6.1")) os = "Windows 7";
-                else os = "Windows";
+                const macMatch = rawUA.match(/Mac OS X (\d+[._]\d+)/i);
+                os = macMatch ? `macOS ${macMatch[1].replace(/_/g, ".")}` : "macOS";
             }
-            if (device === "Desktop / PC") {
-                let shortGpu = "";
-                if (/NVIDIA|GeForce|RTX|GTX/i.test(gpu)) {
-                    const m = gpu.match(/(?:NVIDIA\s+)?(GeForce\s+[A-Z0-9\s]+|RTX\s+[A-Z0-9\s]+|GTX\s+[A-Z0-9\s]+)/i);
-                    shortGpu = m ? m[0].trim() : "NVIDIA GPU";
-                } else if (/Radeon|AMD/i.test(gpu)) {
-                    shortGpu = "AMD Radeon";
-                } else if (/Intel/i.test(gpu)) {
-                    shortGpu = "Intel Graphics";
-                }
-                device = shortGpu ? `Windows PC (${shortGpu})` : `Windows PC (${screenRes})`;
+            if (!device) {
+                const mChip = gpu.match(/Apple M\d+(?:\s+(?:Pro|Max|Ultra))?/i);
+                device = mChip ? `Apple Mac (${mChip[0]})` : "Apple Mac";
             }
-        }
-        // 6. Linux
-        else if (/linux/i.test(rawUA)) {
+        } else if (/windows nt/i.test(rawUA)) {
             type = "Desktop";
-            if (os === "Unknown OS") os = /ubuntu/i.test(rawUA) ? "Ubuntu Linux" : "Linux";
-            device = `Linux Workstation (${screenRes})`;
+            if (os === "Unknown OS") os = "Windows 10/11";
+            if (!device) {
+                device = gpu ? `Windows PC (${gpu})` : "Windows PC";
+            }
+        } else if (/linux/i.test(rawUA)) {
+            if (os === "Unknown OS") os = "Linux";
+            if (!device) device = gpu ? `Linux System (${gpu})` : "Linux System";
         }
 
-        return { os, browser, device, type };
+        if (!device) device = type === "Mobile" ? "Mobile Smartphone" : "Desktop / PC";
+
+        const netInfo = getNetworkTelemetry();
+
+        return {
+            os,
+            browser,
+            device,
+            type,
+            gpu: gpu || "Standard GPU",
+            hw_specs: hwSpecs,
+            screen: screenRes,
+            timezone,
+            language,
+            net_type: netInfo.net_type,
+            net_speed: netInfo.net_speed,
+            isp: sessionStorage.getItem("suman_isp") || "Resolved by Server",
+            location: sessionStorage.getItem("suman_loc") || "Resolved by Server"
+        };
     }
 
-    // 5. Execute & Dispatch Telemetry to Flask (/log_visitor)
+    window.getSumanRealDeviceTelemetry = getRealDeviceData;
+
     function sendTelemetry() {
+        // Do not auto-log when viewing the secret admin page (Admin has a manual Test button)
+        if (window.location.pathname.includes("/suman/") || window.location.pathname.includes("/admin")) {
+            return;
+        }
+
         const ua = (navigator.userAgent || "").toLowerCase();
         const isBot = /bot|crawl|spider|slurp|googlebot|bingbot|yandex|headlesschrome|lighthouse/i.test(ua);
         if (isBot) return;
@@ -294,12 +326,14 @@
                     keepalive: true
                 });
             })
-            .catch((err) => {
-                console.debug("Telemetry skipped:", err);
-            });
+            .then((res) => (res && res.ok ? res.json() : null))
+            .then((data) => {
+                if (data && data.isp) sessionStorage.setItem("suman_isp", data.isp);
+                if (data && data.location) sessionStorage.setItem("suman_loc", data.location);
+            })
+            .catch(() => {});
     }
 
-    // Run safely even if DOMContentLoaded has already fired
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", sendTelemetry);
     } else {
